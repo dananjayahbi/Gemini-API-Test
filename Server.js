@@ -56,19 +56,19 @@ const generationConfig = {
 const safetySettings = [
   {
    category: HarmCategory.HARM_CATEGORY_HARASSMENT,
-   threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+   threshold: HarmBlockThreshold.BLOCK_NONE,
   },
   {
    category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
-   threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+   threshold: HarmBlockThreshold.BLOCK_NONE,
   },
   {
    category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-   threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+   threshold: HarmBlockThreshold.BLOCK_NONE,
   },
   {
    category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
-   threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+   threshold: HarmBlockThreshold.BLOCK_NONE,
   },
 ];
 
@@ -88,3 +88,10 @@ app.post("/generate", async (req, res) => {
   const response = result.response;
   res.json({ text: response.text() });
 });
+
+
+//In the Postrman, use "http://localhost:5000/generate" route with post and use the following Json as the payload: 
+
+// {
+//     "prompt": "Do you like react JS?"
+// }
