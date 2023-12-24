@@ -1,3 +1,5 @@
+//server.js
+
 import express from 'express';
 import * as dotenv from 'dotenv';
 import cors from 'cors';
@@ -15,6 +17,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+let chat = null; // Store chat instance
+
 app.get('/', async (req, res) => {
   res.status(200).send({
     message: 'Hello from CodeX!'
@@ -23,31 +27,34 @@ app.get('/', async (req, res) => {
 
 app.post('/', async (req, res) => {
   try {
-    const prompt = req.body.prompt;
+    const userMessage = req.body.message;
 
-    const parts = [{ text: prompt }];
+    if (!chat) {
+      // Initialize chat if not already initialized
+      chat = model.startChat({
+        generationConfig: {
+          temperature: 0.4,
+          topK: 1,
+          topP: 1,
+          maxOutputTokens: 10000,
+        },
+        safetySettings: [
+          { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+          { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
+          { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_NONE },
+          { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+        ],
+      });
+    }
 
-    const result = await model.generateContent({
-      contents: [{ role: 'user', parts }],
-      generationConfig: {
-        temperature: 0.4,
-        topK: 1,
-        topP: 1,
-        maxOutputTokens: 2048,
-      },
-      safetySettings: [
-        { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
-        { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
-        { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_NONE },
-        { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },
-      ],
-    });
-
+    // Send user message to the chat
+    const result = await chat.sendMessage(userMessage);
     const response = result.response;
-    res.status(200).send({
-      bot: response.text(),
-    });
+    const botMessage = response.text();
 
+    res.status(200).send({
+      bot: botMessage,
+    });
   } catch (error) {
     console.error(error);
     res.status(500).send(error || 'Something went wrong');

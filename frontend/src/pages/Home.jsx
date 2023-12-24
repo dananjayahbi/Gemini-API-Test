@@ -3,23 +3,21 @@ import React, { useState } from 'react';
 import { Layout, Input, Button, message } from 'antd';
 import axios from 'axios';
 import ReactMarkdown from 'react-markdown';
-import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { atomOneLight } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 import Editor from '@monaco-editor/react';
 
 const { Content } = Layout;
 
 const Home = () => {
-  const [prompt, setPrompt] = useState('');
+  const [userMessage, setUserMessage] = useState('');
   const [response, setResponse] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleGenerate = async () => {
+  const handleSendMessage = async () => {
     if (loading) return;
 
     try {
       setLoading(true);
-      const result = await axios.post('http://localhost:5000/', { prompt });
+      const result = await axios.post('http://localhost:5000/', { message: userMessage });
       setResponse(result.data.bot);
     } catch (error) {
       console.error('Error:', error);
@@ -62,7 +60,7 @@ const Home = () => {
                       );
                     },
                   }}
-                  className="custom-markdown" // Add your custom class
+                  className="custom-markdown"
                 >
                   {response}
                 </ReactMarkdown>
@@ -89,14 +87,14 @@ const Home = () => {
       >
         <Input
           placeholder="Type your message..."
-          value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
-          onPressEnter={handleGenerate}
+          value={userMessage}
+          onChange={(e) => setUserMessage(e.target.value)}
+          onPressEnter={handleSendMessage}
           style={{ width: '80%', marginRight: '10px' }}
           disabled={loading}
         />
-        <Button type="primary" onClick={handleGenerate} disabled={loading}>
-          {loading ? 'Generating...' : 'Generate'}
+        <Button type="primary" onClick={handleSendMessage} disabled={loading}>
+          {loading ? 'Sending...' : 'Send Message'}
         </Button>
       </div>
     </Layout>
